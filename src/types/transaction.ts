@@ -13,6 +13,6 @@ export interface Transaction {
   date: string
   amount: number
   category: SpendingCategory
-  description?: string
+  description: string
   merchant?: string
 }
