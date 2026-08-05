@@ -6,12 +6,20 @@ import DashboardHeader from '../components/DashboardHeader.vue'
 import DashboardStatus from '../components/DashboardStatus.vue'
 import FilterBar from '../components/FilterBar.vue'
 import StatsCardsGrid from '../components/StatsCardsGrid.vue'
+import SpendingChart from '@/components/SpendingChart.vue'
 import { useDashboardStore } from '@/stores/dashboard'
 
 const dashboardStore = useDashboardStore()
 
-const { isLoading, errorMessage, filteredSpending, totalSpending, averageSpending, maxSpending } =
-  storeToRefs(dashboardStore)
+const {
+  isLoading,
+  errorMessage,
+  filteredSpending,
+  totalSpending,
+  averageSpending,
+  maxSpending,
+  spendingByCategory,
+} = storeToRefs(dashboardStore)
 
 onMounted(() => {
   void dashboardStore.fetchSpendingData()
@@ -41,11 +49,8 @@ onMounted(() => {
           :max-spending="maxSpending"
         />
 
-        <section class="dashboard-placeholder-grid" aria-label="Dashboard visualisations">
-          <article class="dashboard-placeholder">
-            <h2>Spending by category</h2>
-            <p>The category chart will be added in the chart feature.</p>
-          </article>
+        <section class="dashboard-content-grid" aria-label="Dashboard visualisations">
+          <SpendingChart :spending-by-category="spendingByCategory" />
 
           <article class="dashboard-placeholder">
             <h2>Recent transactions</h2>
@@ -71,7 +76,7 @@ onMounted(() => {
   margin: 0 auto;
 }
 
-.dashboard-placeholder-grid {
+.dashboard-content-grid {
   display: grid;
   gap: 20px;
   margin-top: 24px;
