@@ -12,15 +12,15 @@ boundaries.
 
 ## Technology
 
-| Concern | Choice |
-| --- | --- |
-| UI | Vue 3 single-file components with the Composition API |
-| Build and development server | Vite |
-| Language | TypeScript |
-| Application state | Pinia |
-| Charts | Chart.js through vue-chartjs |
-| Unit tests | Vitest and Vue Test Utils |
-| Formatting and static checks | Prettier, ESLint, Oxlint, vue-tsc |
+| Concern                      | Choice                                                |
+| ---------------------------- | ----------------------------------------------------- |
+| UI                           | Vue 3 single-file components with the Composition API |
+| Build and development server | Vite                                                  |
+| Language                     | TypeScript                                            |
+| Application state            | Pinia                                                 |
+| Charts                       | Chart.js through vue-chartjs                          |
+| Unit tests                   | Vitest and Vue Test Utils                             |
+| Formatting and static checks | Prettier, ESLint, Oxlint, vue-tsc                     |
 
 The supported Node.js versions are declared in `package.json`. The standard
 commands are `npm run dev`, `npm run build`, `npm run type-check`, and
@@ -90,17 +90,22 @@ formatters, validation helpers, and chart-data construction live in `src/utils`.
 
 ### Rendering responsibilities
 
-| Component | Responsibility |
-| --- | --- |
-| `DashboardHeader` | Title and editable start/end date inputs |
-| `FilterBar` | Category selection, quick periods, and reset control |
-| `DashboardStatus` | Loading, error, and no-results states |
-| `StatsCardsGrid` | Total, average, and maximum spending summaries |
-| `SpendingChart` | Doughnut-chart configuration and category summary |
-| `TransactionsTable` | Display, sorting events, and client-side pagination |
+| Component           | Responsibility                                       |
+| ------------------- | ---------------------------------------------------- |
+| `DashboardHeader`   | Title and editable start/end date inputs             |
+| `FilterBar`         | Category selection, quick periods, and reset control |
+| `DashboardStatus`   | Loading, error, and no-results states                |
+| `StatsCardsGrid`    | Total, average, and maximum spending summaries       |
+| `SpendingChart`     | Doughnut-chart configuration and category summary    |
+| `TransactionsTable` | Display, sorting events, and client-side pagination  |
 
-Components receive typed props and emit user intent upward. The container and
-store retain orchestration and business logic ownership.
+Presentation-focused components such as `StatsCardsGrid`, `SpendingChart`, and
+`TransactionsTable` receive typed props and emit interaction events where
+appropriate. `DashboardHeader` and `FilterBar` currently interact directly
+with the Pinia store for dashboard filter state.
+
+The container and store retain orchestration and business-logic ownership, and
+components should not duplicate filtering, aggregation, or service logic.
 
 ## Runtime Behavior
 
@@ -122,45 +127,42 @@ comparison or display.
 
 ### High priority
 
-1. **Prototype-only data source.** Each load and retry generates a different,
-   random client-side dataset. There is no API contract, persistence,
-   authentication, authorization, cancellation, caching, or customer scope.
-2. **Unsafe production data validation.** The current data processor accepts a
-   TypeScript `Transaction`, rather than an unknown external payload. It does
-   not verify a supported category, can normalize invalid calendar dates, and
-   can throw for malformed non-object API records.
-3. **Misleading test success signal.** A recent `npm run test:unit -- --run`
-   execution reported three passing files but seven Vitest worker-start errors,
-   while the command exited with code zero. Treat the suite as incomplete until
-   worker startup is reliable and the command fails on these errors.
+1. **Prototype-only data source.** Each load and retry generates a new
+   client-side dataset. There is no production API, persistence,
+   authentication, authorization, caching, or customer scope.
+
+2. **External payload validation is still prototype-level.**
+   `dataProcessor` validates the generated transaction model, but a real API
+   integration should treat external payloads as `unknown` and validate them
+   against a runtime schema before they enter application state.
 
 ### Medium priority
 
-1. **Date input edge case.** Clearing a date input is parsed into an unintended
-   historical JavaScript date. Store actions also do not validate that a date
-   range contains two valid dates in ascending order.
-2. **Incomplete period filter contract.** The Custom quick-period option is
-   visible but disabled. `selectedTimePeriod` exists in types but is not stored
-   or reflected in the UI, so active quick-period selection has no state.
-3. **Desktop layout selector mismatch.** The desktop two-column CSS targets
-   `.dashboard-placeholder-grid`, but the rendered element uses
-   `.dashboard-content-grid`; chart and table therefore remain single-column.
-4. **Mobile table sorting is not visually available.** Sorting controls are in
-   the header, which is visually hidden in the compact table presentation.
-5. **Duplicate category source of truth.** `spendingCategories` and
-   `SPENDING_CATEGORIES` contain the same values in different modules and can
-   diverge when categories are changed.
+1. **Date input validation can be strengthened.** Store actions do not yet
+   reject all invalid or reversed date ranges before updating state.
+
+2. **Incomplete custom-period contract.** The Custom quick-period option is
+   visible but not yet implemented as a complete custom-period workflow.
+   `selectedTimePeriod` exists in the domain types but is not currently stored
+   as application state.
+
+3. **Mobile sorting discoverability.** The compact transaction-table layout
+   hides the desktop table header, so sorting controls are less discoverable
+   on smaller screens.
+
+4. **Duplicate category definitions.** `spendingCategories` and
+   `SPENDING_CATEGORIES` contain the same category values in separate modules.
+   They should eventually be derived from one canonical definition.
 
 ### Lower priority
 
-- `SortField` supports `category`, but the current table has no category sort
-  control or store comparison logic for it.
-- `aria-sort` is applied to buttons rather than the table header cells, which
-  weakens table-sort semantics for assistive technology.
-- `DashboardContainer` wraps the already framed `TransactionsTable` in another
-  framed article, creating redundant layout and heading structure.
-- Repeated date parsing and sorting are acceptable for 120 mock records but
-  should be reconsidered for large datasets.
+- `aria-sort` should ideally be associated with sortable table header cells
+  rather than relying primarily on button state.
+- Repeated date parsing and client-side sorting are appropriate for the current
+  120-record mock dataset but should be reconsidered for large production
+  datasets.
+- The Vitest configuration currently emits a non-blocking Vite warning about
+  future native config loading.
 
 ## Adding Features
 
@@ -202,24 +204,27 @@ Use the following workflow for new dashboard features.
 ## Suggested Production Roadmap
 
 1. Replace the mock service with an API adapter and environment-based endpoint
-   configuration. Define versioned request/response contracts and customer
-   scoping before integrating UI behavior.
-2. Validate unknown API responses at the boundary with a runtime schema. Reject
-   malformed records with useful observability and never pass unvalidated data
-   to the store.
-3. Make loading resilient: use request cancellation or request IDs to prevent
-   stale responses overwriting newer data, and provide retry behavior that does
-   not silently change the business dataset.
-4. Fix the date validation, quick-period state, desktop grid selector, mobile
-   sorting controls, category source duplication, and table accessibility
-   semantics before broader feature work.
-5. Repair the Vitest worker configuration or CI environment so all discovered
-   tests execute and worker failures fail the command. Add integration coverage
-   for loading, error, filter, table, and chart flows.
+   configuration. Define versioned request and response contracts before
+   integrating real customer data.
+
+2. Validate unknown API responses at the service boundary using a runtime
+   schema and reject malformed records before they reach Pinia.
+
+3. Add resilient request handling such as cancellation or request identifiers
+   to prevent stale responses from replacing newer state.
+
+4. Strengthen date-range validation, complete the custom-period workflow,
+   consolidate category definitions, and improve mobile sorting accessibility.
+
+5. Expand automated coverage with component and integration tests for loading,
+   error, retry, filter, chart, and full dashboard flows.
+
 6. Add authentication, authorization, server-side pagination/filtering, audit
-   needs, and privacy controls according to the real customer-data requirements.
-7. Add client/server error monitoring and performance measurements once the API
-   is live. Avoid logging transaction details or customer-identifying data.
+   requirements, and privacy controls when integrating real customer data.
+
+7. Add production monitoring, error reporting, and performance measurements
+   while ensuring transaction or customer-identifying information is never
+   written to client logs.
 
 ## Change Checklist
 
