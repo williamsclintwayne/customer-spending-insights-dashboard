@@ -7,6 +7,7 @@ import DashboardStatus from '../components/DashboardStatus.vue'
 import FilterBar from '../components/FilterBar.vue'
 import StatsCardsGrid from '../components/StatsCardsGrid.vue'
 import SpendingChart from '@/components/SpendingChart.vue'
+import TransactionsTable from '@/components/TransactionsTable.vue'
 import { useDashboardStore } from '@/stores/dashboard'
 
 const dashboardStore = useDashboardStore()
@@ -19,6 +20,9 @@ const {
   averageSpending,
   maxSpending,
   spendingByCategory,
+  sortedTransactions,
+  sortBy,
+  sortOrder,
 } = storeToRefs(dashboardStore)
 
 onMounted(() => {
@@ -54,7 +58,12 @@ onMounted(() => {
 
           <article class="dashboard-placeholder">
             <h2>Recent transactions</h2>
-            <p>The sortable transactions table will be added in a separate feature.</p>
+            <TransactionsTable
+              :transactions="sortedTransactions"
+              :sort-by="sortBy"
+              :sort-order="sortOrder"
+              @sort="dashboardStore.setSortBy"
+            />
           </article>
         </section>
       </template>
