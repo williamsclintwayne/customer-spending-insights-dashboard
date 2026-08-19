@@ -1,6 +1,6 @@
 import type { SpendingCategory } from './transaction'
 
-export type SortField = 'date' | 'amount' | 'category'
+export type SortField = 'date' | 'amount'
 
 export type SortOrder = 'asc' | 'desc'
 

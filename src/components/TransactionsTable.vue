@@ -92,15 +92,13 @@ function sortIndicator(field: SortField): string {
       <table>
         <thead>
           <tr>
-            <th scope="col">
-              <button
-                type="button"
-                class="sort-button"
-                :aria-sort="
-                  sortBy === 'date' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
-                "
-                @click="requestSort('date')"
-              >
+            <th
+              scope="col"
+              :aria-sort="
+                sortBy === 'date' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
+              "
+            >
+              <button type="button" class="sort-button" @click="requestSort('date')">
                 Date
                 <span aria-hidden="true">{{ sortIndicator('date') }}</span>
               </button>
@@ -109,13 +107,16 @@ function sortIndicator(field: SortField): string {
             <th scope="col">Category</th>
             <th scope="col">Description</th>
 
-            <th scope="col" class="amount-column">
+            <th
+              scope="col"
+              class="amount-column"
+              :aria-sort="
+                sortBy === 'amount' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
+              "
+            >
               <button
                 type="button"
                 class="sort-button sort-button--amount"
-                :aria-sort="
-                  sortBy === 'amount' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
-                "
                 @click="requestSort('amount')"
               >
                 Amount
@@ -351,20 +352,44 @@ td strong {
   }
 
   table,
-  thead,
   tbody,
   tr,
-  th,
   td {
     display: block;
   }
 
   thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    display: block;
+    padding: 16px 16px 0;
+  }
+
+  thead tr {
+    display: flex;
+    gap: 8px;
+  }
+
+  thead th {
+    display: block;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+  thead th:nth-child(2),
+  thead th:nth-child(3) {
+    display: none;
+  }
+
+  thead .sort-button {
+    min-height: 40px;
+    padding: 8px 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+  }
+
+  thead .amount-column {
+    text-align: left;
   }
 
   tbody {

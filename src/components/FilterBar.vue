@@ -2,11 +2,11 @@
 import { storeToRefs } from 'pinia'
 
 import type { SpendingCategory } from '@/types'
-import { SPENDING_CATEGORIES, TIME_PERIODS } from '@/utils'
+import { SPENDING_CATEGORIES, TIME_PERIODS, type TimePeriodOption } from '@/utils'
 import { useDashboardStore } from '@/stores/dashboard'
 
 const dashboardStore = useDashboardStore()
-const { selectedCategory } = storeToRefs(dashboardStore)
+const { selectedCategory, selectedTimePeriod } = storeToRefs(dashboardStore)
 
 function handleCategoryChange(event: Event): void {
   const value = (event.target as HTMLSelectElement).value
@@ -14,19 +14,21 @@ function handleCategoryChange(event: Event): void {
   dashboardStore.setCategory(value === '' ? null : (value as SpendingCategory))
 }
 
-function applyTimePeriod(days: number | null): void {
-  if (days === null) {
+function applyTimePeriod(period: TimePeriodOption): void {
+  if (period.days === null) {
+    dashboardStore.setTimePeriod(period.value)
     return
   }
 
   const end = new Date()
   const start = new Date(end)
 
-  start.setDate(start.getDate() - (days - 1))
+  start.setDate(start.getDate() - (period.days - 1))
+
   start.setHours(0, 0, 0, 0)
   end.setHours(23, 59, 59, 999)
 
-  dashboardStore.setDateRange(start, end)
+  dashboardStore.setDateRange(start, end, period.value)
 }
 </script>
 
@@ -64,8 +66,11 @@ function applyTimePeriod(days: number | null): void {
             v-for="period in TIME_PERIODS"
             :key="period.value"
             type="button"
-            :disabled="period.days === null"
-            @click="applyTimePeriod(period.days)"
+            :class="{
+              'quick-filter--active': selectedTimePeriod === period.value,
+            }"
+            :aria-pressed="selectedTimePeriod === period.value"
+            @click="applyTimePeriod(period)"
           >
             {{ period.label }}
           </button>
@@ -160,9 +165,11 @@ h2 {
   border-color: var(--color-primary);
 }
 
-.quick-filters button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+.quick-filters button.quick-filter--active {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
 }
 
 @media (min-width: 768px) {

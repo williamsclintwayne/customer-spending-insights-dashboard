@@ -1,10 +1,17 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 
-import type { DateRange, SortField, SortOrder, SpendingCategory, Transaction } from '@/types'
+import type {
+  DateRange,
+  SortField,
+  SortOrder,
+  SpendingCategory,
+  TimePeriod,
+  Transaction,
+} from '@/types'
 import { getSpendingData } from '@/services/spendingDataService'
 import { normalizeDateFormat } from '@/services/dataProcessor'
-import { calculateAverage, findMax, groupByCategory, sumAmounts } from '@/utils'
+import { calculateAverage, findMax, groupByCategory, isValidDateRange, sumAmounts } from '@/utils'
 
 function createDefaultDateRange(): DateRange {
   const end = new Date()
@@ -21,6 +28,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const spendingData = ref<Transaction[]>([])
   const selectedDateRange = ref<DateRange>(createDefaultDateRange())
   const selectedCategory = ref<SpendingCategory | null>(null)
+  const selectedTimePeriod = ref<TimePeriod>('last_90_days')
   const sortBy = ref<SortField>('date')
   const sortOrder = ref<SortOrder>('desc')
   const isLoading = ref(false)
@@ -77,8 +85,17 @@ export const useDashboardStore = defineStore('dashboard', () => {
     }
   }
 
-  function setDateRange(start: Date, end: Date): void {
+  function setDateRange(start: Date, end: Date, timePeriod: TimePeriod = 'custom'): void {
+    if (!isValidDateRange(start, end)) {
+      return
+    }
+
     selectedDateRange.value = { start, end }
+    selectedTimePeriod.value = timePeriod
+  }
+
+  function setTimePeriod(timePeriod: TimePeriod): void {
+    selectedTimePeriod.value = timePeriod
   }
 
   function setCategory(category: SpendingCategory | null): void {
@@ -93,25 +110,30 @@ export const useDashboardStore = defineStore('dashboard', () => {
   function resetFilters(): void {
     selectedDateRange.value = createDefaultDateRange()
     selectedCategory.value = null
+    selectedTimePeriod.value = 'last_90_days'
   }
 
   return {
     spendingData,
     selectedDateRange,
     selectedCategory,
+    selectedTimePeriod,
     sortBy,
     sortOrder,
     isLoading,
     errorMessage,
+
     filteredSpending,
     totalSpending,
     averageSpending,
     maxSpending,
     spendingByCategory,
     sortedTransactions,
+
     fetchSpendingData,
     setDateRange,
     setCategory,
+    setTimePeriod,
     setSortBy,
     resetFilters,
   }

@@ -10,14 +10,26 @@ const { selectedDateRange } = storeToRefs(dashboardStore)
 const startDate = computed({
   get: () => formatDateInput(selectedDateRange.value.start),
   set: (value: string) => {
-    dashboardStore.setDateRange(parseDateInput(value, false), selectedDateRange.value.end)
+    if (!value) {
+      return
+    }
+
+    dashboardStore.setDateRange(parseDateInput(value, false), selectedDateRange.value.end, 'custom')
   },
 })
 
 const endDate = computed({
   get: () => formatDateInput(selectedDateRange.value.end),
   set: (value: string) => {
-    dashboardStore.setDateRange(selectedDateRange.value.start, parseDateInput(value, true))
+    if (!value) {
+      return
+    }
+
+    dashboardStore.setDateRange(
+      selectedDateRange.value.start,
+      parseDateInput(value, true),
+      'custom',
+    )
   },
 })
 
@@ -30,8 +42,17 @@ function formatDateInput(date: Date): string {
 }
 
 function parseDateInput(value: string, endOfDay: boolean): Date {
-  const [year, month, day] = value.split('-').map(Number)
-  const date = new Date(year ?? 0, (month ?? 1) - 1, day ?? 1)
+  const [yearValue, monthValue, dayValue] = value.split('-')
+
+  if (!yearValue || !monthValue || !dayValue) {
+    return new Date(Number.NaN)
+  }
+
+  const year = Number(yearValue)
+  const month = Number(monthValue)
+  const day = Number(dayValue)
+
+  const date = new Date(year, month - 1, day)
 
   if (endOfDay) {
     date.setHours(23, 59, 59, 999)

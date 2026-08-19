@@ -56,15 +56,12 @@ onMounted(() => {
         <section class="dashboard-content-grid" aria-label="Dashboard visualisations">
           <SpendingChart :spending-by-category="spendingByCategory" />
 
-          <article class="dashboard-placeholder">
-            <h2>Recent transactions</h2>
-            <TransactionsTable
-              :transactions="sortedTransactions"
-              :sort-by="sortBy"
-              :sort-order="sortOrder"
-              @sort="dashboardStore.setSortBy"
-            />
-          </article>
+          <TransactionsTable
+            :transactions="sortedTransactions"
+            :sort-by="sortBy"
+            :sort-order="sortOrder"
+            @sort="dashboardStore.setSortBy"
+          />
         </section>
       </template>
     </main>
@@ -91,25 +88,6 @@ onMounted(() => {
   margin-top: 24px;
 }
 
-.dashboard-placeholder {
-  min-height: 240px;
-  padding: 24px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-card);
-}
-
-.dashboard-placeholder h2 {
-  margin: 0 0 8px;
-  font-size: 1.125rem;
-}
-
-.dashboard-placeholder p {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
 @media (min-width: 768px) {
   .dashboard-page {
     padding: 32px 24px 64px;
@@ -117,8 +95,9 @@ onMounted(() => {
 }
 
 @media (min-width: 1024px) {
-  .dashboard-placeholder-grid {
+  .dashboard-content-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    align-items: start;
   }
 }
 </style>
