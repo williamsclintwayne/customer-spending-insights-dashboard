@@ -92,4 +92,20 @@ describe('TransactionsTable', () => {
 
     expect(wrapper.text()).toContain('No transactions are available for the selected filters.')
   })
+
+  it('applies aria-sort to sortable table headers', () => {
+    const wrapper = mount(TransactionsTable, {
+      props: {
+        transactions,
+        sortBy: 'date',
+        sortOrder: 'desc',
+      },
+    })
+
+    const sortableHeaders = wrapper.findAll('th[aria-sort]')
+
+    expect(sortableHeaders).toHaveLength(2)
+    expect(sortableHeaders[0]?.attributes('aria-sort')).toBe('descending')
+    expect(sortableHeaders[1]?.attributes('aria-sort')).toBe('none')
+  })
 })

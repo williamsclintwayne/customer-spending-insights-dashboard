@@ -151,4 +151,41 @@ describe('useDashboardStore', () => {
 
     expect(store.selectedCategory).toBeNull()
   })
+  it('defaults to the last 90 day period', () => {
+    const store = useDashboardStore()
+
+    expect(store.selectedTimePeriod).toBe('last_90_days')
+  })
+
+  it('updates the selected time period when setting a date range', () => {
+    const store = useDashboardStore()
+
+    const start = new Date('2026-08-01T00:00:00')
+    const end = new Date('2026-08-19T23:59:59')
+
+    store.setDateRange(start, end, 'custom')
+
+    expect(store.selectedTimePeriod).toBe('custom')
+  })
+
+  it('rejects an invalid reversed date range', () => {
+    const store = useDashboardStore()
+
+    const originalStart = store.selectedDateRange.start
+    const originalEnd = store.selectedDateRange.end
+
+    store.setDateRange(new Date('2026-08-19T00:00:00'), new Date('2026-08-01T23:59:59'), 'custom')
+
+    expect(store.selectedDateRange.start).toEqual(originalStart)
+    expect(store.selectedDateRange.end).toEqual(originalEnd)
+  })
+
+  it('resets the selected time period to last 90 days', () => {
+    const store = useDashboardStore()
+
+    store.setTimePeriod('custom')
+    store.resetFilters()
+
+    expect(store.selectedTimePeriod).toBe('last_90_days')
+  })
 })

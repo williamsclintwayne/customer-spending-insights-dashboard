@@ -1,12 +1,6 @@
-import type { SpendingCategory, TimePeriod } from '@/types'
+import { spendingCategories, type SpendingCategory, type TimePeriod } from '@/types'
 
-export const SPENDING_CATEGORIES: readonly SpendingCategory[] = [
-  'Groceries',
-  'Utilities',
-  'Entertainment',
-  'Transport',
-  'Other',
-]
+export const SPENDING_CATEGORIES: readonly SpendingCategory[] = spendingCategories
 
 export interface TimePeriodOption {
   label: string
