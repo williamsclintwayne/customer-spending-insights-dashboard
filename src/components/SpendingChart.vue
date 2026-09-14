@@ -9,11 +9,11 @@ import { createSpendingChartData, formatCurrency, SPENDING_CATEGORIES } from '@/
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface Props {
+export interface SpendingChartProps {
   spendingByCategory: Record<SpendingCategory, number>
 }
 
-const props = defineProps<Props>()
+const props = defineProps<SpendingChartProps>()
 
 const chartData = computed(() => createSpendingChartData(props.spendingByCategory))
 

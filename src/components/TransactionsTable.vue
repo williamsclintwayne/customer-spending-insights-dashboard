@@ -4,13 +4,13 @@ import { computed, ref, watch } from 'vue'
 import type { SortField, SortOrder, Transaction } from '@/types'
 import { DEFAULT_PAGE_SIZE, formatCurrency, formatDate } from '@/utils'
 
-interface Props {
+export interface TransactionsTableProps {
   transactions: readonly Transaction[]
   sortBy: SortField
   sortOrder: SortOrder
 }
 
-const props = defineProps<Props>()
+const props = defineProps<TransactionsTableProps>()
 
 const emit = defineEmits<{
   sort: [field: SortField, order: SortOrder]

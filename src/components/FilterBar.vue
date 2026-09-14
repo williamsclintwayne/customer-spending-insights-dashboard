@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 
-import type { SpendingCategory } from '@/types'
+import { spendingCategories } from '@/types'
 import { SPENDING_CATEGORIES, TIME_PERIODS, type TimePeriodOption } from '@/utils'
 import { useDashboardStore } from '@/stores/dashboard'
 
@@ -11,7 +11,15 @@ const { selectedCategory, selectedTimePeriod } = storeToRefs(dashboardStore)
 function handleCategoryChange(event: Event): void {
   const value = (event.target as HTMLSelectElement).value
 
-  dashboardStore.setCategory(value === '' ? null : (value as SpendingCategory))
+  if (value === '') {
+    dashboardStore.setCategory(null)
+    return
+  }
+
+  const category = spendingCategories.find((c) => c === value)
+  if (category !== undefined) {
+    dashboardStore.setCategory(category)
+  }
 }
 
 function applyTimePeriod(period: TimePeriodOption): void {

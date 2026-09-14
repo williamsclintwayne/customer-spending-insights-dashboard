@@ -1,5 +1,6 @@
 import type { Transaction } from '@/types'
 import { generateSpendingData } from '@/mocks/spendingDataGenerator'
+import { getSimulatedError } from '@/mocks/errorSimulator'
 import { filterValidTransactions } from './dataProcessor'
 
 const MOCK_API_DELAY_MS = 500
@@ -12,6 +13,9 @@ function delay(milliseconds: number): Promise<void> {
 
 export async function getSpendingData(): Promise<Transaction[]> {
   await delay(MOCK_API_DELAY_MS)
+
+  const simulatedError = getSimulatedError()
+  if (simulatedError) throw simulatedError
 
   const transactions = generateSpendingData(120)
 

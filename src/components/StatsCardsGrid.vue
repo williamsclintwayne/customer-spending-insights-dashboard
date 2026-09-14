@@ -3,13 +3,13 @@ import { computed } from 'vue'
 
 import { formatCurrency } from '@/utils'
 
-interface Props {
+export interface StatsCardsGridProps {
   totalSpending: number
   averageSpending: number
   maxSpending: number
 }
 
-const props = defineProps<Props>()
+const props = defineProps<StatsCardsGridProps>()
 
 const cards = computed(() => [
   {

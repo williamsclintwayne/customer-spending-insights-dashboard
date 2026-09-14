@@ -2,19 +2,24 @@
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 
-import DashboardHeader from '../components/DashboardHeader.vue'
-import DashboardStatus from '../components/DashboardStatus.vue'
-import FilterBar from '../components/FilterBar.vue'
-import StatsCardsGrid from '../components/StatsCardsGrid.vue'
+import DashboardHeader from '@/components/DashboardHeader.vue'
+import DashboardStatus from '@/components/DashboardStatus.vue'
+import FilterBar from '@/components/FilterBar.vue'
+import StatsCardsGrid from '@/components/StatsCardsGrid.vue'
 import SpendingChart from '@/components/SpendingChart.vue'
 import TransactionsTable from '@/components/TransactionsTable.vue'
+import DevErrorPanel from '@/components/DevErrorPanel.vue'
 import { useDashboardStore } from '@/stores/dashboard'
+
+const emit = defineEmits<{
+  signOut: []
+}>()
 
 const dashboardStore = useDashboardStore()
 
 const {
   isLoading,
-  errorMessage,
+  apiError,
   filteredSpending,
   totalSpending,
   averageSpending,
@@ -38,12 +43,13 @@ onMounted(() => {
       <FilterBar />
 
       <DashboardStatus
-        v-if="isLoading || errorMessage || filteredSpending.length === 0"
+        v-if="isLoading || apiError || filteredSpending.length === 0"
         :is-loading="isLoading"
-        :error-message="errorMessage"
-        :is-empty="!isLoading && !errorMessage && filteredSpending.length === 0"
+        :api-error="apiError"
+        :is-empty="!isLoading && !apiError && filteredSpending.length === 0"
         @retry="dashboardStore.fetchSpendingData"
         @reset-filters="dashboardStore.resetFilters"
+        @sign-out="emit('signOut')"
       />
 
       <template v-else>
@@ -65,6 +71,8 @@ onMounted(() => {
         </section>
       </template>
     </main>
+
+    <DevErrorPanel />
   </div>
 </template>
 

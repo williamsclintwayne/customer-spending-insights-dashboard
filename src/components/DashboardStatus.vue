@@ -1,16 +1,110 @@
 <script setup lang="ts">
-interface Props {
+import { computed } from 'vue'
+
+import type { ApiError, ApiErrorCode } from '@/services/apiError'
+
+export interface DashboardStatusProps {
   isLoading: boolean
-  errorMessage: string | null
+  apiError: ApiError | null
   isEmpty: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<DashboardStatusProps>()
 
-defineEmits<{
+const emit = defineEmits<{
   retry: []
   resetFilters: []
+  signOut: []
 }>()
+
+interface ErrorConfig {
+  heading: string
+  message: string
+  buttonLabel: string | null
+  emitName: 'retry' | 'resetFilters' | 'signOut' | null
+}
+
+function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
+  switch (code) {
+    case 'UNAUTHORIZED':
+      return {
+        heading: 'Session expired',
+        message: 'Your session has expired. Please sign in again.',
+        buttonLabel: 'Sign in again',
+        emitName: 'signOut',
+      }
+    case 'FORBIDDEN':
+      return {
+        heading: 'Access denied',
+        message: 'You do not have permission to view this data.',
+        buttonLabel: null,
+        emitName: null,
+      }
+    case 'NOT_FOUND':
+      return {
+        heading: 'Service not found',
+        message: 'The spending data service could not be found.',
+        buttonLabel: null,
+        emitName: null,
+      }
+    case 'BAD_REQUEST':
+      return {
+        heading: 'Invalid request',
+        message: 'Check your filters and date range, then try again.',
+        buttonLabel: 'Reset filters',
+        emitName: 'resetFilters',
+      }
+    case 'RATE_LIMITED':
+      return {
+        heading: 'Too many requests',
+        message: 'Please wait a moment before trying again.',
+        buttonLabel: 'Try again',
+        emitName: 'retry',
+      }
+    case 'SERVER_ERROR':
+      return {
+        heading: 'Server error',
+        message: 'A server error occurred. Please try again.',
+        buttonLabel: 'Try again',
+        emitName: 'retry',
+      }
+    case 'SERVICE_UNAVAILABLE':
+      return {
+        heading: 'Service unavailable',
+        message: 'The service is temporarily unavailable. Please try again shortly.',
+        buttonLabel: 'Try again',
+        emitName: 'retry',
+      }
+    case 'NETWORK_ERROR':
+      return {
+        heading: 'No internet connection',
+        message: 'Check your connection and try again.',
+        buttonLabel: 'Try again',
+        emitName: 'retry',
+      }
+    case 'UNKNOWN':
+      return {
+        heading: 'Unable to load the dashboard',
+        message: 'Something went wrong. Please try again.',
+        buttonLabel: 'Try again',
+        emitName: 'retry',
+      }
+  }
+}
+
+const errorConfig = computed((): ErrorConfig => {
+  if (!props.apiError) {
+    return resolveErrorConfig('UNKNOWN')
+  }
+  return resolveErrorConfig(props.apiError.code)
+})
+
+function handleErrorAction(): void {
+  const name = errorConfig.value.emitName
+  if (name === 'retry') emit('retry')
+  else if (name === 'resetFilters') emit('resetFilters')
+  else if (name === 'signOut') emit('signOut')
+}
 </script>
 
 <template>
@@ -23,13 +117,15 @@ defineEmits<{
     </div>
   </section>
 
-  <section v-else-if="errorMessage" class="status-card status-card--error" role="alert">
+  <section v-else-if="apiError" class="status-card status-card--error" role="alert">
     <div>
-      <h2>Unable to load the dashboard</h2>
-      <p>{{ errorMessage }}</p>
+      <h2>{{ errorConfig.heading }}</h2>
+      <p>{{ errorConfig.message }}</p>
     </div>
 
-    <button type="button" @click="$emit('retry')">Try again</button>
+    <button v-if="errorConfig.buttonLabel" type="button" @click="handleErrorAction">
+      {{ errorConfig.buttonLabel }}
+    </button>
   </section>
 
   <section v-else-if="isEmpty" class="status-card">

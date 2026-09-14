@@ -10,5 +10,5 @@ const signedInUser = ref<MockUser | null>(null)
 
 <template>
   <SignInForm v-if="!signedInUser" @signed-in="signedInUser = $event" />
-  <DashboardContainer v-else />
+  <DashboardContainer v-else @sign-out="signedInUser = null" />
 </template>
