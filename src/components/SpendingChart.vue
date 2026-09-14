@@ -34,9 +34,9 @@ const chartDescription = computed(() => {
 const chartOptions: ChartOptions<'doughnut'> = {
   responsive: true,
   maintainAspectRatio: false,
-  cutout: '68%',
+  cutout: '58%',
   animation: {
-    duration: 400,
+    duration: 200,
   },
   plugins: {
     legend: {

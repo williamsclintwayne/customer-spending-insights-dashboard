@@ -7,6 +7,8 @@ The project demonstrates frontend engineering practices including component arch
 ## Features
 
 - Financial spending overview dashboard
+- Local mock sign-in with selectable demo accounts
+- Mock password-reset confirmation for demo accounts
 - Mock transaction data covering the previous 90 days
 - Category filtering
 - Date-range filtering
@@ -53,11 +55,13 @@ src/
 │   ├── DashboardHeader.vue
 │   ├── DashboardStatus.vue
 │   ├── FilterBar.vue
+│   ├── SignInForm.vue
 │   ├── SpendingChart.vue
 │   ├── StatsCardsGrid.vue
 │   └── TransactionsTable.vue
 │
 ├── mocks/
+│   ├── authService.ts
 │   └── spendingDataGenerator.ts
 │
 ├── services/
@@ -152,6 +156,10 @@ Run unit tests:
 ```bash
 npm run test:unit -- --run
 ```
+
+The app uses local mock authentication only. Select **Show accounts** on the sign-in
+screen to reveal the available demo accounts. The password-reset action displays a
+mock confirmation for a recognised demo email; it does not send a real email.
 
 Create a production build:
 
