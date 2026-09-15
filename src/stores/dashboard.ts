@@ -9,6 +9,7 @@ import type {
   TimePeriod,
   Transaction,
 } from '@/types'
+import { ApiError } from '@/services/apiError'
 import { getSpendingData } from '@/services/spendingDataService'
 import { normalizeDateFormat } from '@/services/dataProcessor'
 import { calculateAverage, findMax, groupByCategory, isValidDateRange, sumAmounts } from '@/utils'
@@ -32,7 +33,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const sortBy = ref<SortField>('date')
   const sortOrder = ref<SortOrder>('desc')
   const isLoading = ref(false)
-  const errorMessage = ref<string | null>(null)
+  const apiError = ref<ApiError | null>(null)
 
   const filteredSpending = computed(() => {
     const startTime = selectedDateRange.value.start.getTime()
@@ -73,13 +74,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   async function fetchSpendingData(): Promise<void> {
     isLoading.value = true
-    errorMessage.value = null
+    apiError.value = null
 
     try {
       spendingData.value = await getSpendingData()
     } catch (error: unknown) {
       spendingData.value = []
-      errorMessage.value = error instanceof Error ? error.message : 'Unable to load spending data.'
+      apiError.value =
+        error instanceof ApiError
+          ? error
+          : new ApiError('UNKNOWN', null, 'Unable to load spending data.')
     } finally {
       isLoading.value = false
     }
@@ -121,7 +125,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     sortBy,
     sortOrder,
     isLoading,
-    errorMessage,
+    apiError,
 
     filteredSpending,
     totalSpending,

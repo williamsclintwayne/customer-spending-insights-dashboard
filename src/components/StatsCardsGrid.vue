@@ -3,13 +3,13 @@ import { computed } from 'vue'
 
 import { formatCurrency } from '@/utils'
 
-interface Props {
+export interface StatsCardsGridProps {
   totalSpending: number
   averageSpending: number
   maxSpending: number
 }
 
-const props = defineProps<Props>()
+const props = defineProps<StatsCardsGridProps>()
 
 const cards = computed(() => [
   {
@@ -64,7 +64,7 @@ const cards = computed(() => [
 .stats-card__value {
   margin: 12px 0 8px;
   font-size: clamp(1.7rem, 4vw, 2.25rem);
-  font-weight: 750;
+  font-weight: 800;
   letter-spacing: -0.03em;
 }
 
@@ -77,6 +77,43 @@ const cards = computed(() => [
 @media (min-width: 768px) {
   .stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    gap: 0;
+    padding: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-card);
+  }
+
+  .stats-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-right: 1px solid var(--color-border);
+    border-radius: 0;
+  }
+
+  .stats-card:last-child {
+    border-right: 0;
+  }
+
+  .stats-card__value {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .stats-card__description {
+    display: none;
   }
 }
 </style>

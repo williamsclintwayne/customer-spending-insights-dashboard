@@ -10,7 +10,7 @@ vi.mock('@/services/spendingDataService', () => ({
 }))
 
 describe('App', () => {
-  it('renders the dashboard heading', () => {
+  it('renders the mock sign-in screen with demo accounts collapsed', async () => {
     const wrapper = mount(App, {
       global: {
         plugins: [
@@ -22,6 +22,13 @@ describe('App', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('Customer Spending Insights')
+    expect(wrapper.text()).toContain('Welcome back')
+    expect(wrapper.text()).toContain('Show accounts')
+    expect(wrapper.text()).not.toContain('demo.user@spendwise.test')
+
+    await wrapper.get('button.demo-accounts__toggle').trigger('click')
+
+    expect(wrapper.text()).toContain('demo.user@spendwise.test')
+    expect(wrapper.text()).toContain('analyst@spendwise.test')
   })
 })

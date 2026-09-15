@@ -2,7 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 import type { Transaction } from '@/types'
+import { ApiError } from '@/services/apiError'
+import { getSpendingData } from '@/services/spendingDataService'
 import { useDashboardStore } from '../dashboard'
+
+vi.mock('@/services/spendingDataService')
 
 const transactions: Transaction[] = [
   {
@@ -45,7 +49,7 @@ describe('useDashboardStore', () => {
     expect(store.sortBy).toBe('date')
     expect(store.sortOrder).toBe('desc')
     expect(store.isLoading).toBe(false)
-    expect(store.errorMessage).toBeNull()
+    expect(store.apiError).toBeNull()
   })
 
   it('filters transactions by category', () => {
@@ -187,5 +191,34 @@ describe('useDashboardStore', () => {
     store.resetFilters()
 
     expect(store.selectedTimePeriod).toBe('last_90_days')
+  })
+
+  describe('fetchSpendingData error handling', () => {
+    it('sets apiError with the correct code when an ApiError is thrown', async () => {
+      vi.mocked(getSpendingData).mockRejectedValueOnce(
+        new ApiError('SERVER_ERROR', 500, 'Internal server error'),
+      )
+
+      const store = useDashboardStore()
+      await store.fetchSpendingData()
+
+      expect(store.apiError).not.toBeNull()
+      expect(store.apiError?.code).toBe('SERVER_ERROR')
+      expect(store.apiError?.statusCode).toBe(500)
+      expect(store.spendingData).toEqual([])
+      expect(store.isLoading).toBe(false)
+    })
+
+    it('wraps a plain Error as UNKNOWN when a non-ApiError is thrown', async () => {
+      vi.mocked(getSpendingData).mockRejectedValueOnce(new Error('Unexpected failure'))
+
+      const store = useDashboardStore()
+      await store.fetchSpendingData()
+
+      expect(store.apiError?.code).toBe('UNKNOWN')
+      expect(store.apiError?.statusCode).toBeNull()
+      expect(store.spendingData).toEqual([])
+      expect(store.isLoading).toBe(false)
+    })
   })
 })
