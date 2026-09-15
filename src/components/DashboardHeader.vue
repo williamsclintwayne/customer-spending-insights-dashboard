@@ -149,7 +149,14 @@ h1 {
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
+}
+
+.date-range input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(0 154 73 / 15%);
 }
 
 @media (min-width: 768px) {
@@ -163,6 +170,19 @@ h1 {
     flex-direction: row;
     align-items: flex-end;
     justify-content: space-between;
+    margin-bottom: 0;
+  }
+
+  .dashboard-header__description {
+    display: none;
+  }
+
+  .date-range {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    gap: 8px;
   }
 }
 </style>

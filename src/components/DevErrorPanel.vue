@@ -147,4 +147,9 @@ function reload(): void {
 .dev-panel__button:hover {
   background: #007a3a;
 }
+
+.dev-panel button,
+.dev-panel select {
+  min-height: unset;
+}
 </style>

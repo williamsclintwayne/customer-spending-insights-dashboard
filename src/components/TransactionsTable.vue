@@ -132,7 +132,7 @@ function sortIndicator(field: SortField): string {
               {{ formatDate(new Date(`${transaction.date}T00:00:00`)) }}
             </td>
             <td data-label="Category">
-              <span class="category-badge">
+              <span class="category-badge" :data-category="transaction.category">
                 {{ transaction.category }}
               </span>
             </td>
@@ -237,7 +237,11 @@ th {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: #f8faf9;
+  background: var(--color-surface-subtle);
+}
+
+tbody tr {
+  transition: background-color 120ms ease;
 }
 
 tbody tr:last-child td {
@@ -245,7 +249,7 @@ tbody tr:last-child td {
 }
 
 tbody tr:hover {
-  background: #fbfdfc;
+  background: var(--color-primary-soft);
 }
 
 .sort-button {
@@ -258,6 +262,11 @@ tbody tr:hover {
   font: inherit;
   background: transparent;
   border: 0;
+  transition: color 150ms ease;
+}
+
+.sort-button:hover {
+  color: var(--color-primary);
 }
 
 .sort-button--amount {
@@ -279,6 +288,31 @@ tbody tr:hover {
   font-weight: 700;
   background: var(--color-primary-soft);
   border-radius: 999px;
+}
+
+.category-badge[data-category='Groceries'] {
+  background: var(--color-category-groceries-soft);
+  color: var(--color-category-groceries);
+}
+
+.category-badge[data-category='Utilities'] {
+  background: var(--color-category-utilities-soft);
+  color: var(--color-category-utilities);
+}
+
+.category-badge[data-category='Entertainment'] {
+  background: var(--color-category-entertainment-soft);
+  color: var(--color-category-entertainment);
+}
+
+.category-badge[data-category='Transport'] {
+  background: var(--color-category-transport-soft);
+  color: var(--color-category-transport);
+}
+
+.category-badge[data-category='Other'] {
+  background: var(--color-category-other-soft);
+  color: var(--color-category-other);
 }
 
 td strong {
@@ -328,7 +362,8 @@ td strong {
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
 }
 
 .transactions-pagination__controls button:hover:not(:disabled) {
@@ -442,6 +477,28 @@ td strong {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+  }
+}
+
+@media (min-width: 1024px) {
+  .transactions-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .transactions-card__header {
+    padding: 14px 20px;
+  }
+
+  .transactions-card__header p {
+    display: none;
+  }
+
+  .table-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
 </style>

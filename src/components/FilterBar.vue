@@ -41,23 +41,21 @@ function applyTimePeriod(period: TimePeriodOption): void {
 </script>
 
 <template>
-  <section class="filter-bar" aria-labelledby="filter-heading">
+  <section class="filter-bar" aria-label="Dashboard filters">
     <div class="filter-bar__heading">
-      <div>
-        <h2 id="filter-heading">Filters</h2>
-        <p>Refine all dashboard results.</p>
-      </div>
-
-      <button type="button" class="reset-button" @click="dashboardStore.resetFilters">
-        Reset filters
-      </button>
+      <h2 id="filter-heading">Filters</h2>
+      <p>Refine all dashboard results.</p>
     </div>
 
     <div class="filter-bar__controls">
       <label class="category-filter">
         <span>Category</span>
 
-        <select :value="selectedCategory ?? ''" @change="handleCategoryChange">
+        <select
+          :value="selectedCategory ?? ''"
+          :class="{ 'category-select--active': selectedCategory !== null }"
+          @change="handleCategoryChange"
+        >
           <option value="">All categories</option>
 
           <option v-for="category in SPENDING_CATEGORIES" :key="category" :value="category">
@@ -84,6 +82,10 @@ function applyTimePeriod(period: TimePeriodOption): void {
           </button>
         </div>
       </div>
+
+      <button type="button" class="reset-button" @click="dashboardStore.resetFilters">
+        Reset filters
+      </button>
     </div>
   </section>
 </template>
@@ -122,8 +124,14 @@ h2 {
   color: var(--color-primary-dark);
   font-weight: 700;
   background: var(--color-primary-soft);
-  border: 0;
-  border-radius: 10px;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
+}
+
+.reset-button:hover {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
 }
 
 .filter-bar__controls {
@@ -150,7 +158,19 @@ h2 {
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
+}
+
+.category-filter select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(0 154 73 / 15%);
+}
+
+.category-select--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .quick-filters__buttons {
@@ -162,9 +182,10 @@ h2 {
 .quick-filters button {
   padding: 8px 14px;
   color: var(--color-text);
-  background: #f8faf9;
+  background: var(--color-surface-subtle);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
 }
 
 .quick-filters button:hover:not(:disabled) {
@@ -184,6 +205,26 @@ h2 {
   .filter-bar__controls {
     grid-template-columns: minmax(200px, 0.35fr) minmax(0, 1fr);
     align-items: end;
+  }
+}
+
+@media (min-width: 1024px) {
+  .filter-bar {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 4px 0;
+    margin-bottom: 0;
+  }
+
+  .filter-bar__heading {
+    display: none;
+  }
+
+  .filter-bar__controls {
+    grid-template-columns: minmax(150px, 0.25fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
   }
 }
 </style>

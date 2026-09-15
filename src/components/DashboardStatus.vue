@@ -22,6 +22,7 @@ interface ErrorConfig {
   message: string
   buttonLabel: string | null
   emitName: 'retry' | 'resetFilters' | 'signOut' | null
+  icon: string
 }
 
 function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
@@ -32,6 +33,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'Your session has expired. Please sign in again.',
         buttonLabel: 'Sign in again',
         emitName: 'signOut',
+        icon: '×',
       }
     case 'FORBIDDEN':
       return {
@@ -39,6 +41,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'You do not have permission to view this data.',
         buttonLabel: null,
         emitName: null,
+        icon: '×',
       }
     case 'NOT_FOUND':
       return {
@@ -46,6 +49,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'The spending data service could not be found.',
         buttonLabel: null,
         emitName: null,
+        icon: '?',
       }
     case 'BAD_REQUEST':
       return {
@@ -53,6 +57,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'Check your filters and date range, then try again.',
         buttonLabel: 'Reset filters',
         emitName: 'resetFilters',
+        icon: '!',
       }
     case 'RATE_LIMITED':
       return {
@@ -60,6 +65,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'Please wait a moment before trying again.',
         buttonLabel: 'Try again',
         emitName: 'retry',
+        icon: '!',
       }
     case 'SERVER_ERROR':
       return {
@@ -67,6 +73,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'A server error occurred. Please try again.',
         buttonLabel: 'Try again',
         emitName: 'retry',
+        icon: '!',
       }
     case 'SERVICE_UNAVAILABLE':
       return {
@@ -74,6 +81,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'The service is temporarily unavailable. Please try again shortly.',
         buttonLabel: 'Try again',
         emitName: 'retry',
+        icon: '!',
       }
     case 'NETWORK_ERROR':
       return {
@@ -81,6 +89,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'Check your connection and try again.',
         buttonLabel: 'Try again',
         emitName: 'retry',
+        icon: '⊘',
       }
     case 'UNKNOWN':
       return {
@@ -88,6 +97,7 @@ function resolveErrorConfig(code: ApiErrorCode): ErrorConfig {
         message: 'Something went wrong. Please try again.',
         buttonLabel: 'Try again',
         emitName: 'retry',
+        icon: '!',
       }
   }
 }
@@ -118,9 +128,12 @@ function handleErrorAction(): void {
   </section>
 
   <section v-else-if="apiError" class="status-card status-card--error" role="alert">
-    <div>
-      <h2>{{ errorConfig.heading }}</h2>
-      <p>{{ errorConfig.message }}</p>
+    <div class="status-card__content">
+      <div class="status-icon" aria-hidden="true">{{ errorConfig.icon }}</div>
+      <div>
+        <h2>{{ errorConfig.heading }}</h2>
+        <p>{{ errorConfig.message }}</p>
+      </div>
     </div>
 
     <button v-if="errorConfig.buttonLabel" type="button" @click="handleErrorAction">
@@ -128,7 +141,7 @@ function handleErrorAction(): void {
     </button>
   </section>
 
-  <section v-else-if="isEmpty" class="status-card">
+  <section v-else-if="isEmpty" class="status-card" role="status" aria-live="polite">
     <div>
       <h2>No transactions found</h2>
       <p>No spending data matches the selected filters and date range.</p>
@@ -154,6 +167,26 @@ function handleErrorAction(): void {
 .status-card--error {
   background: var(--color-danger-soft);
   border-color: rgb(180 35 24 / 25%);
+}
+
+.status-card__content {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.status-icon {
+  flex-shrink: 0;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-danger);
+  background: rgb(180 35 24 / 12%);
+  border-radius: 50%;
 }
 
 h2 {
