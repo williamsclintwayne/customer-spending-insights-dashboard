@@ -4,7 +4,8 @@
 
 This repository is a client-side customer spending dashboard. It is currently a
 working prototype: it visualizes generated transaction data in the browser and
-does not connect to a production API, persist data, or identify users.
+uses local mock sign-in state. It does not connect to a production API, persist
+a session, or provide production authentication or authorization.
 
 Use this document as the technical reference for maintaining the current
 dashboard and adding new capabilities without bypassing its state and data
@@ -31,7 +32,9 @@ commands are `npm run dev`, `npm run build`, `npm run type-check`, and
 ```text
 main.ts
   -> App.vue
-    -> DashboardContainer.vue
+    -> SignInForm.vue
+      -> mock auth service
+    -> DashboardContainer.vue (after mock sign-in)
       -> dashboard Pinia store
         -> spendingDataService
           -> mock spending-data generator
@@ -43,10 +46,19 @@ main.ts
 
 - `src/main.ts` creates the Vue app, installs Pinia, imports global styles, and
   mounts `App.vue`.
-- `src/App.vue` deliberately contains only the dashboard view. There is no
-  router or multi-page application shell.
+- `src/App.vue` holds the local mock sign-in gate and renders the dashboard after
+  a successful mock sign-in. There is no router or multi-page application shell.
 - `src/views/DashboardContainer.vue` coordinates data loading and selects the
   loading, error, empty, or populated dashboard state.
+
+### Mock authentication
+
+`src/mocks/authService.ts` provides a local-only list of demo accounts and
+simulated sign-in and password-reset requests. `SignInForm.vue` exposes those
+accounts behind a collapsed list, shows an invalid-credentials message, and
+displays a mock reset confirmation for a recognised demo email. This feature is
+for demonstration only: it does not persist a session, send emails, or provide
+authorization.
 
 ### State and derived data
 
@@ -127,9 +139,10 @@ comparison or display.
 
 ### High priority
 
-1. **Prototype-only data source.** Each load and retry generates a new
-   client-side dataset. There is no production API, persistence,
-   authentication, authorization, caching, or customer scope.
+1. **Prototype-only data source and sign-in.** Each load and retry generates a
+   new client-side dataset. The sign-in flow uses hard-coded demo accounts;
+   there is no production API, persistence, authorization, caching, or
+   customer scope.
 
 2. **External payload validation is still prototype-level.**
    `dataProcessor` validates the generated transaction model, but a real API

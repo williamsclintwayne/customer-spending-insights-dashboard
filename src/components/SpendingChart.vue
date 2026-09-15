@@ -9,13 +9,17 @@ import { createSpendingChartData, formatCurrency, SPENDING_CATEGORIES } from '@/
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
-interface Props {
+export interface SpendingChartProps {
   spendingByCategory: Record<SpendingCategory, number>
 }
 
-const props = defineProps<Props>()
+const props = defineProps<SpendingChartProps>()
 
 const chartData = computed(() => createSpendingChartData(props.spendingByCategory))
+
+const activeCategories = computed(() =>
+  SPENDING_CATEGORIES.filter((category) => props.spendingByCategory[category] > 0),
+)
 
 const totalSpending = computed(() =>
   SPENDING_CATEGORIES.reduce((total, category) => total + props.spendingByCategory[category], 0),
@@ -34,9 +38,9 @@ const chartDescription = computed(() => {
 const chartOptions: ChartOptions<'doughnut'> = {
   responsive: true,
   maintainAspectRatio: false,
-  cutout: '68%',
+  cutout: '58%',
   animation: {
-    duration: 400,
+    duration: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 200,
   },
   plugins: {
     legend: {
@@ -88,8 +92,8 @@ const chartOptions: ChartOptions<'doughnut'> = {
       <p>No category spending is available for the selected filters.</p>
     </div>
 
-    <dl class="category-summary">
-      <div v-for="category in SPENDING_CATEGORIES" :key="category" class="category-summary__item">
+    <dl v-if="activeCategories.length > 0" class="category-summary" aria-label="Spending by category">
+      <div v-for="category in activeCategories" :key="category" class="category-summary__item">
         <dt>{{ category }}</dt>
         <dd>{{ formatCurrency(spendingByCategory[category]) }}</dd>
       </div>
@@ -197,6 +201,33 @@ h2 {
 @media (min-width: 768px) {
   .chart-wrapper {
     height: 320px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .chart-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .chart-card__header {
+    margin-bottom: 12px;
+  }
+
+  .chart-card__header p {
+    display: none;
+  }
+
+  .chart-wrapper {
+    flex: 1;
+    min-height: 180px;
+    height: auto;
+  }
+
+  .category-summary {
+    display: none;
   }
 }
 </style>
